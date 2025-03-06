@@ -16,6 +16,9 @@ const SignupForm = ({}: { handleModalClose: () => void }) => {
   // set state for alert
   const [showAlert, setShowAlert] = useState(false);
 
+    // state for error message
+    const [errorMessage, setErrorMessage] = useState('');
+
   //set mutation hook
   const [ addUser ] = useMutation(ADD_USER);
 
@@ -45,6 +48,8 @@ const SignupForm = ({}: { handleModalClose: () => void }) => {
 
       });
 
+      console.log('Response received:', data ? 'Data present' : 'No data');
+
       if (!data) {
         throw new Error('something went wrong!');
       }
@@ -52,11 +57,37 @@ const SignupForm = ({}: { handleModalClose: () => void }) => {
       //const { token } = await response.json();
       const { token } = data.addUser;
 
+      if (!token) {
+        throw new Error('No token received from server');
+      }
+
+      console.log('Token received successfully');
+
       Auth.login(token);
-    } catch (err) {
-      console.error(err);
+
+    } catch (err: any) {
+      console.error('Signup error:', err);
       setShowAlert(true);
+    
+
+    // Enhanced error logging
+    if (err.graphQLErrors) {
+      console.error('GraphQL Errors:', JSON.stringify(err.graphQLErrors, null, 2));
+      setErrorMessage(err.graphQLErrors[0]?.message || 'GraphQL error occurred');
+    } else if (err.networkError) {
+      console.error('Network Error:', err.networkError);
+      if (err.networkError.result?.errors) {
+        console.error('Network Error Details:', JSON.stringify(err.networkError.result.errors, null, 2));
+      }
+      setErrorMessage('Network error: Server responded with an error');
+    } else {
+      setErrorMessage(err.message || 'Something went wrong with your signup!');
     }
+    
+    setShowAlert(true);
+  }
+
+
 
     setUserFormData({
       username: '',
