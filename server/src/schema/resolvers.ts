@@ -3,11 +3,7 @@ import {  AuthenticationError } from '../services/auth.js';
 import { signToken } from '../services/auth.js';
 import { Request } from 'express';
 
-// Define Auth type
-interface Auth {
-  token: string;
-  user: IUser;
-}
+
 
 // Define Context type
 interface Context {
@@ -56,6 +52,28 @@ const resolvers =  {
           },
     },
     Mutation: {
+
+      // Add this to your Mutation object in resolvers.ts
+       addUser: async (_parent: any, { username, email, password }: { username: string; email: string; password: string }) => {
+          try {
+          // Create a new user
+            const user = await User.create({ username, email, password });
+    
+             if (!user) {
+             throw new Error('Something went wrong!');
+             }
+    
+          // Sign a token
+          const token = signToken(user.username, user.email, user._id);
+    
+         // Return an AuthPayload
+         return { token, user };
+         } catch (error) {
+        console.error(error);
+        throw new Error('Error creating user');
+        }
+      },
+      
       login: async (_parent: any, { email, password }: { email: string; password: string }) => {
         const user = await User.findOne({ email });
         if (!user) {
@@ -68,6 +86,7 @@ const resolvers =  {
         const token = signToken(user.username, user.email, user._id);
         return { token, user };
       },
+
       saveBook: async (_: any, { bookData }: { bookData: BookInput }, context: Context) => {
         if (!context.user) {
           throw new AuthenticationError('You must be logged in!');
