@@ -3,6 +3,7 @@ import { Outlet } from 'react-router-dom';
 import { ApolloClient, InMemoryCache, ApolloProvider, createHttpLink } from '@apollo/client';
 import { setContext } from '@apollo/client/link/context';
 import Navbar from './components/Navbar';
+import Auth from './utils/auth'
 
 // Create an HTTP link to your GraphQL server
 // The '/graphql' path corresponds to your proxy in vite.config.ts
@@ -14,8 +15,8 @@ const httpLink = createHttpLink({
 // This will add the token to every request
 const authLink = setContext((_, { headers }) => {
   // Get the authentication token from local storage if it exists
-  const token = localStorage.getItem('auth_token');
-
+  //const token = localStorage.getItem('auth_token');
+  const token = Auth.getToken();
    // Return the headers to the context so httpLink can read them
    return {
     headers: {

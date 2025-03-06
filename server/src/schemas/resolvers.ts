@@ -8,7 +8,7 @@ import { Request } from 'express';
 // Define Context type
 interface Context {
   user?: IUser;
-  req: Request;
+  req?: Request;
 }
 
 // Define User type
@@ -56,11 +56,17 @@ const resolvers =  {
       // Add this to your Mutation object in resolvers.ts
        addUser: async (_parent: any, { username, email, password }: { username: string; email: string; password: string }) => {
           try {
+           // Check if user already exists
+           const existingUser = await User.findOne({ email });
+           if (existingUser) {
+              throw new Error('User with this email already exists');
+            }
+
           // Create a new user
             const user = await User.create({ username, email, password });
     
              if (!user) {
-             throw new Error('Something went wrong!');
+             throw new Error('Failed to create a user!');
              }
     
           // Sign a token
@@ -68,9 +74,21 @@ const resolvers =  {
     
          // Return an AuthPayload
          return { token, user };
-         } catch (error) {
-        console.error(error);
-        throw new Error('Error creating user');
+         } catch (error: any) {
+        console.error('add user error:',error);
+
+            // Pass through specific error messages
+         if (error.message.includes('duplicate key') || error.message.includes('already exists')) {
+              throw new Error('An account with this email already exists');
+          }
+
+              // If it's a token signing error
+          if (error.message === 'Server configuration error') {
+               throw new Error('Internal server error with authentication');
+          }
+
+          // Otherwise throw original error message
+          throw new Error(error.message || 'Error creating user');
         }
       },
       
@@ -87,14 +105,14 @@ const resolvers =  {
         return { token, user };
       },
 
-      saveBook: async (_: any, { bookData }: { bookData: BookInput }, context: Context) => {
+      saveBook: async (_: any, { book }: { book: BookInput }, context: Context) => {
         if (!context.user) {
           throw new AuthenticationError('You must be logged in!');
         }
   
         const updatedUser = await User.findByIdAndUpdate(
           context.user._id,
-          { $addToSet: { savedBooks: bookData } },
+          { $addToSet: { savedBooks: book } },
           { new: true, runValidators: true }
         );
   
