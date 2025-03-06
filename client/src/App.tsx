@@ -26,6 +26,24 @@ const authLink = setContext((_, { headers }) => {
   };
 });
 
+// Configure the cache with merge functions
+const cache = new InMemoryCache({
+  typePolicies: {
+    User: {
+      fields: {
+        savedBooks: {
+          merge(existing = [], incoming = []) {
+            // Return the incoming array to completely replace the existing one
+            // Or implement a more sophisticated merge strategy if needed
+            return incoming;
+          },
+        },
+      },
+    },
+  },
+});
+
+
 // Initialize Apollo Client
 const client = new ApolloClient({
   link: authLink.concat(httpLink), // Combine the auth and http links
