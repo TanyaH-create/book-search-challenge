@@ -26,36 +26,7 @@ const startApolloServer = async () => {
   app.use(express.urlencoded({ extended: true }));
   app.use(express.json());
   
-  // app.use('/graphql', expressMiddleware(server as any, {
-  //   context: async ({ req }) => {
-  //     // If there's no req or no headers, just return empty context
-  //     if (!req || !req.headers) {
-  //       return {};
-  //     }
-  
-  //     const authHeader = req.headers.authorization;
-  
-  //     if (!authHeader) {
-  //       // No auth needed
-  //       return {};
-  //     }
-  
-  //     try {
-  //       const token = authHeader.split(' ')[1];
-  //       const secretKey = process.env.JWT_SECRET_KEY || '';
-  
-  //       if (!token || !secretKey) {
-  //         return {};
-  //       }
-  
-  //       const user = jwt.verify(token, secretKey);
-  //       return { user };
-  //     } catch (error) {
-  //       console.error('Token verification failed:', error);
-  //       return {};
-  //     }
-  //   }
-  // }));
+
 
   app.use('/graphql', expressMiddleware(server as any,
     {
