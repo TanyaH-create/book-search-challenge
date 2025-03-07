@@ -1,24 +1,13 @@
 import mongoose from 'mongoose';
+import dotenv from 'dotenv';
 
-const connectionString = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/googlebooks';
+dotenv.config();
 
-mongoose.connect(connectionString)
-  .then(() => {
-    console.log('Successfully connected to MongoDB');
-    console.log(`Using database: ${mongoose.connection.name}`);
-  })
-  .catch(err => {
-    console.error('MongoDB connection error:', err);
-  });
+// Use environment variable for MongoDB connection string with fallback
+const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/googlebooks';
 
-// Monitor for disconnections
-mongoose.connection.on('disconnected', () => {
-  console.warn('MongoDB disconnected');
-});
-
-// Monitor for reconnections
-mongoose.connection.on('reconnected', () => {
-  console.log('MongoDB reconnected');
-});
+mongoose.connect(MONGODB_URI)
+  .then(() => console.log('MongoDB connection established successfully'))
+  .catch(err => console.error('MongoDB connection error:', err));
 
 export default mongoose.connection;
