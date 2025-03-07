@@ -59,7 +59,7 @@ const startApolloServer = async () => {
 
   app.use('/graphql', expressMiddleware(server as any,
     {
-      context: createApolloContext;
+      context: createApolloContext,
     }
   ));
 
