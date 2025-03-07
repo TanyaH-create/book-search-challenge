@@ -2,10 +2,14 @@ import express, { Request, Response, NextFunction, ErrorRequestHandler } from 'e
 import { ApolloServer } from '@apollo/server';
 import { expressMiddleware } from '@apollo/server/express4';
 import path from 'path';
-
+import { fileURLToPath } from 'url';
 import { createApolloContext } from './services/auth.js';
 import { typeDefs, resolvers } from './schemas/index.js';
 import db from './config/connection.js';
+
+// Fix for __dirname in ESM
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const PORT = process.env.PORT || 3001;
 const app = express();
